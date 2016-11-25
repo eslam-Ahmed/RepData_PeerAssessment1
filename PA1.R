@@ -1,100 +1,99 @@
----
-title: 'Reproducible Research: Peer Assessment 1'
-output:
-  html_document:
-    keep_md: yes
-  pdf_document: default
----
+?read.csv
 
+#Loading and preprocessing the data
+#Show any code that is needed to
+#1. Load the data (i.e. read.csv())
 
-## Loading and preprocessing the data
-
-```{r}
 activity <- read.csv("activity.csv")
-```
-* Process/transform the data (if necessary) into a format suitable for your analysis
 
-```{r}.
+# 2. Process/transform the data (if necessary) into a format suitable for your analysis
+
 activity$date <- as.Date(activity$date)
-```
 
-## What is mean total number of steps taken per day?
+#calculating number of NA
+sum(is.na(activity$steps))
 
-* excluding na
+# What is mean total number of steps taken per day?
+#For this part of the assignment, you can ignore the missing values in the dataset.
+# 1. Make a histogram of the total number of steps taken each day
 
-```{r}
+#excluding na
 activiy_excludingNA <- activity[which(!is.na(activity$steps)),]
-```
-* calculating the total steps taken per day
 
-```{r}
+#calculating the total steps taken per day
 total.steps.by.day <- tapply(activiy_excludingNA$steps, activiy_excludingNA$date, sum)
-```
-* creating the Historgram
-```{r}
+
+# creating the Historgram
 hist(total.steps.by.day,10,main = "Total Steps Per Day", xlab = "")
-```
 
-* 2. Calculate and report the mean and median total number of steps taken per day
 
-        + mean per day
+#2. Calculate and report the mean and median total number of steps taken
+#per day
 
-         ```{r}
-        mean.total.steps.by.day <- mean(total.steps.by.day)
-         ```
-        + median
+# mean per day
 
-         ```{r}
-        median.total.steps.by.day <- median(total.steps.by.day)
-         ```
+mean.total.steps.by.day <- mean(total.steps.by.day)
 
-## What is the average daily activity pattern?
+# median
+median.total.steps.by.day <- median(total.steps.by.day)
 
-* Make a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
+#------What is the average daily activity pattern?
+#1. Make a time series plot (i.e. type = "l") of the 5-minute interval (x-axis)
+#and the average number of steps taken, averaged across all days (y-axis)
 
-```{r}
 daily_activity <- tapply(activiy_excludingNA$steps, activiy_excludingNA$interval, mean)
-```
-```{r}
+
 plot(y = daily_activity, x = names(daily_activity), type = "l", xlab = "5-Minute-Interval", 
      main = "Daily Activity Pattern", ylab = "Average number of steps")
-```
-* Which 5-minute interval, on average across all the days in the dataset,contains the maximum number of steps?
 
-```{r}
+#2. Which 5-minute interval, on average across all the days in the dataset,
+#contains the maximum number of steps?
+
 max.number.of.steps <- daily_activity[daily_activity==max(daily_activity)]
-```
 
-## Imputing missing values
- 
-* Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with NAs)
+# Imputing missing values
 
-```{r}
+#Note that there are a number of days/intervals where there are missing values
+#(coded as NA). The presence of missing days may introduce bias into some
+#calculations or summaries of the data.
+
+#1. Calculate and report the total number of missing values in the dataset
+#(i.e. the total number of rows with NAs)
+
 sum(is.na(activity))
-```
-* Devise a strategy for filling in all of the missing values in the dataset. The strategy does not need to be sophisticated. For example, you could use the mean/median for that day, or the mean for that 5-minute interval, etc.
 
-```{r}
+# 2. Devise a strategy for filling in all of the missing values in the dataset. The
+#strategy does not need to be sophisticated. For example, you could use
+#the mean/median for that day, or the mean for that 5-minute interval, etc.
+
 activity.replacing.na <- activity
-```
-* Create a new dataset that is equal to the original dataset but with the missing data filled in.
-```{r}
+
+#3. Create a new dataset that is equal to the original dataset but with the
+#missing data filled in.
+
 activity.replacing.na <- activity
 
 activity.replacing.na[which(is.na(activity.replacing.na$steps)),1] <- 
         daily_activity[as.character(activity.replacing.na[which(is.na(activity.replacing.na$steps)),3])]
-```
 
 
-* Make a histogram of the total number of steps taken each day and Calculate and report the mean and median total number of steps taken per day. Do these values differ from the estimates from the first part of the assignment?
-```{r}
+
+# 4. Make a histogram of the total number of steps taken each day and Calculate
+# and report the mean and median total number of steps taken per day. Do
+# these values differ from the estimates from the first part of the assignment?
+# What is the impact of imputing missing data on the estimates of the total
+# daily number of steps?
+
 new.total.steps.by.day <- tapply(activity.replacing.na$steps, activity.replacing.na$date, sum)
+
 hist(new.total.steps.by.day,10,main = "Total Steps Per Day after replacing NA", xlab = "")
+
 mean.new.total.steps.by.day <- mean(new.total.steps.by.day)
+
 median.new.total.steps.by.day <- median(new.total.steps.by.day)
-```
-* comparing the data before removing the NA and after through a graph side by side 
-```{r}
+
+# comparing the data before removing the NA and after through a graph side by side 
+
 par(mfrow=c(1,2))
 hist(total.steps.by.day,10,main = "Total Steps Per Day", xlab = "Steps",ylim = c(0,25))
 abline(v= median.total.steps.by.day,col=4,lwd=4)
@@ -104,12 +103,9 @@ abline(v=median.new.total.steps.by.day,col=4,lwd=4)
 mean.new.total.steps.by.day - mean.total.steps.by.day
 
 median.new.total.steps.by.day - median.total.steps.by.day
-```
 
+# Are there differences in activity patterns between weekdays and weekends?
 
-## Are there differences in activity patterns between weekdays and weekends?
-
-```{r error=TRUE}
 activity.replacing.na$weekday <- weekdays(activity.replacing.na$date)
 activity.replacing.na$fwd <- as.factor(c("weekend","weekday"))
 activity.replacing.na[activity.replacing.na$weekday == "Saturday" | activity.replacing.na$weekday == "Sunday", 5] <- factor("weekend")
@@ -124,5 +120,6 @@ plot(y = daily_activity_weekdayMean, x = names(daily_activity_weekdayMean), type
      main = "Daily Activity Pattern on weekday", ylab = "Average number of steps",ylim = c(0,250))
 plot(y = daily_activity_weekendMean, x = names(daily_activity_weekendMean), type = "l", xlab = "5-Minute-Interval", 
      main = "Daily Activity Pattern on weekend", ylab = "Average number of steps",ylim = c(0,250))
-```
 
+
+activity.replacing.na$fwd
